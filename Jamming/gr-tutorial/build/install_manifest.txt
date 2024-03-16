@@ -1,0 +1,9 @@
+/usr/local/lib/cmake/gnuradio-tutorial/gnuradio-tutorialConfig.cmake
+/usr/local/include/gnuradio/tutorial/api.h
+/usr/local/lib/python3.11/dist-packages/gnuradio/tutorial/__init__.py
+/usr/local/lib/python3.11/dist-packages/gnuradio/tutorial/multiply_py_ff.py
+/usr/local/lib/python3.11/dist-packages/gnuradio/tutorial/__init__.pyc
+/usr/local/lib/python3.11/dist-packages/gnuradio/tutorial/multiply_py_ff.pyc
+/usr/local/lib/python3.11/dist-packages/gnuradio/tutorial/__init__.pyo
+/usr/local/lib/python3.11/dist-packages/gnuradio/tutorial/multiply_py_ff.pyo
+/usr/local/share/gnuradio/grc/blocks/tutorial_multiply_py_ff.block.yml
