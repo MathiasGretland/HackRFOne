@@ -22,7 +22,8 @@ add_subdirectory(bindings)
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    multiply_py_ff.py DESTINATION ${GR_PYTHON_DIR}/gnuradio/tutorial
+    multiply_py_ff.py
+    gpsk_demod_py_cb.py DESTINATION ${GR_PYTHON_DIR}/gnuradio/tutorial
 )
 
 ########################################################################
@@ -40,3 +41,4 @@ add_custom_target(
           ${PROJECT_BINARY_DIR}/test_modules/gnuradio/tutorial/
 )
 GR_ADD_TEST(qa_multiply_py_ff ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_multiply_py_ff.py)
+GR_ADD_TEST(qa_gpsk_demod_py_cb ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_gpsk_demod_py_cb.py)

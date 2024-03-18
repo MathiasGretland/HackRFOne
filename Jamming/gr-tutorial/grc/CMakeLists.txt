@@ -7,5 +7,6 @@
 #
 
 install(FILES
-    tutorial_multiply_py_ff.block.yml DESTINATION share/gnuradio/grc/blocks
+    tutorial_multiply_py_ff.block.yml
+    tutorial_gpsk_demod_py_cb.block.yml DESTINATION share/gnuradio/grc/blocks
 )

@@ -21,4 +21,5 @@ except ModuleNotFoundError:
 
 # import any pure python here
 from .multiply_py_ff import multiply_py_ff
+from .gpsk_demod_py_cb import gpsk_demod_py_cb
 #

@@ -5,8 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Working_light_jammer
-# Author: mathige
+# Title: Not titled yet
 # GNU Radio version: 3.10.7.0
 
 from packaging.version import Version as StrictVersion
@@ -29,12 +28,12 @@ import sip
 
 
 
-class default(gr.top_block, Qt.QWidget):
+class jammer(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Working_light_jammer", catch_exceptions=True)
+        gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Working_light_jammer")
+        self.setWindowTitle("Not titled yet")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -52,7 +51,7 @@ class default(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "default")
+        self.settings = Qt.QSettings("GNU Radio", "jammer")
 
         try:
             if StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
@@ -126,7 +125,7 @@ class default(gr.top_block, Qt.QWidget):
         self.osmosdr_sink_0.set_if_gain(47, 0)
         self.osmosdr_sink_0.set_bb_gain(20, 0)
         self.osmosdr_sink_0.set_antenna('', 0)
-        self.osmosdr_sink_0.set_bandwidth(6000000, 0)
+        self.osmosdr_sink_0.set_bandwidth(bandwidth, 0)
         self.low_pass_filter_0 = filter.fir_filter_ccf(
             1,
             firdes.low_pass(
@@ -136,19 +135,19 @@ class default(gr.top_block, Qt.QWidget):
                 100000,
                 window.WIN_HAMMING,
                 5))
-        self.analog_fastnoise_source_x_0 = analog.fastnoise_source_c(analog.GR_UNIFORM, 1000000, 0, 8192)
+        self.analog_noise_source_x_0 = analog.noise_source_c(analog.GR_UNIFORM, 1000000, 0)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_fastnoise_source_x_0, 0), (self.low_pass_filter_0, 0))
+        self.connect((self.analog_noise_source_x_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.osmosdr_sink_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.qtgui_freq_sink_x_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "default")
+        self.settings = Qt.QSettings("GNU Radio", "jammer")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -176,12 +175,13 @@ class default(gr.top_block, Qt.QWidget):
 
     def set_bandwidth(self, bandwidth):
         self.bandwidth = bandwidth
+        self.osmosdr_sink_0.set_bandwidth(self.bandwidth, 0)
         self.qtgui_freq_sink_x_0.set_frequency_range(self.frequency, self.bandwidth)
 
 
 
 
-def main(top_block_cls=default, options=None):
+def main(top_block_cls=jammer, options=None):
 
     if StrictVersion("4.5.0") <= StrictVersion(Qt.qVersion()) < StrictVersion("5.0.0"):
         style = gr.prefs().get_string('qtgui', 'style', 'raster')
