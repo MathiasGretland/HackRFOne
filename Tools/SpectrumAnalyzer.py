@@ -20,10 +20,10 @@ from PyQt5 import Qt
 from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
-from gnuradio import uhd
-import time
 from gnuradio.qtgui import Range, RangeWidget
 from PyQt5 import QtCore
+import osmosdr
+import time
 import sip
 
 
@@ -64,7 +64,7 @@ class SpectrumAnalyzer(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.tuning = tuning = 102100000
+        self.tuning = tuning = 433920000
         self.samp_rate = samp_rate = 3840000
         self.rf_gain = rf_gain = 50
 
@@ -72,7 +72,7 @@ class SpectrumAnalyzer(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
-        self._tuning_range = Range(70000000, 6000000000, 200000, 102100000, 200)
+        self._tuning_range = Range(70000000, 6000000000, 200000, 433920000, 200)
         self._tuning_win = RangeWidget(self._tuning_range, self.set_tuning, "Frequency", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._tuning_win)
         self._samp_rate_range = Range(192000, 56000000, 1000, 3840000, 200)
@@ -81,22 +81,6 @@ class SpectrumAnalyzer(gr.top_block, Qt.QWidget):
         self._rf_gain_range = Range(0, 76, 1, 50, 200)
         self._rf_gain_win = RangeWidget(self._rf_gain_range, self.set_rf_gain, "RF Gain", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._rf_gain_win)
-        self.uhd_usrp_source_0 = uhd.usrp_source(
-            ",".join(("", "")),
-            uhd.stream_args(
-                cpu_format="fc32",
-                args='',
-                channels=list(range(0,1)),
-            ),
-        )
-        self.uhd_usrp_source_0.set_samp_rate(samp_rate)
-        # No synchronization enforced.
-
-        self.uhd_usrp_source_0.set_center_freq(tuning, 0)
-        self.uhd_usrp_source_0.set_antenna("TX/RX", 0)
-        self.uhd_usrp_source_0.set_bandwidth(samp_rate, 0)
-        self.uhd_usrp_source_0.set_rx_agc(False, 0)
-        self.uhd_usrp_source_0.set_gain(rf_gain, 0)
         self.qtgui_sink_x_0 = qtgui.sink_c(
             1024, #fftsize
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -115,13 +99,26 @@ class SpectrumAnalyzer(gr.top_block, Qt.QWidget):
         self.qtgui_sink_x_0.enable_rf_freq(True)
 
         self.top_layout.addWidget(self._qtgui_sink_x_0_win)
+        self.osmosdr_source_0 = osmosdr.source(
+            args="numchan=" + str(1) + " " + ""
+        )
+        self.osmosdr_source_0.set_sample_rate(samp_rate)
+        self.osmosdr_source_0.set_center_freq(tuning, 0)
+        self.osmosdr_source_0.set_freq_corr(0, 0)
+        self.osmosdr_source_0.set_dc_offset_mode(0, 0)
+        self.osmosdr_source_0.set_iq_balance_mode(0, 0)
+        self.osmosdr_source_0.set_gain_mode(False, 0)
+        self.osmosdr_source_0.set_gain(rf_gain, 0)
+        self.osmosdr_source_0.set_if_gain(20, 0)
+        self.osmosdr_source_0.set_bb_gain(20, 0)
+        self.osmosdr_source_0.set_antenna('', 0)
+        self.osmosdr_source_0.set_bandwidth(samp_rate, 0)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.qtgui_sink_x_0, 'freq'), (self.uhd_usrp_source_0, 'command'))
-        self.connect((self.uhd_usrp_source_0, 0), (self.qtgui_sink_x_0, 0))
+        self.connect((self.osmosdr_source_0, 0), (self.qtgui_sink_x_0, 0))
 
 
     def closeEvent(self, event):
@@ -137,24 +134,24 @@ class SpectrumAnalyzer(gr.top_block, Qt.QWidget):
 
     def set_tuning(self, tuning):
         self.tuning = tuning
+        self.osmosdr_source_0.set_center_freq(self.tuning, 0)
         self.qtgui_sink_x_0.set_frequency_range(self.tuning, self.samp_rate)
-        self.uhd_usrp_source_0.set_center_freq(self.tuning, 0)
 
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.osmosdr_source_0.set_sample_rate(self.samp_rate)
+        self.osmosdr_source_0.set_bandwidth(self.samp_rate, 0)
         self.qtgui_sink_x_0.set_frequency_range(self.tuning, self.samp_rate)
-        self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
-        self.uhd_usrp_source_0.set_bandwidth(self.samp_rate, 0)
 
     def get_rf_gain(self):
         return self.rf_gain
 
     def set_rf_gain(self, rf_gain):
         self.rf_gain = rf_gain
-        self.uhd_usrp_source_0.set_gain(self.rf_gain, 0)
+        self.osmosdr_source_0.set_gain(self.rf_gain, 0)
 
 
 
